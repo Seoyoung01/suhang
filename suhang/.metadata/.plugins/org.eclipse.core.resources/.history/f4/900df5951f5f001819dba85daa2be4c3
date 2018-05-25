@@ -1,0 +1,133 @@
+import java.io.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.MenuBar.*;
+import java.lang.String.*;
+public class FileManager extends Frame implements ActionListener, ItemListener {
+ TextField tf; Button apply;  List list; TextArea ta; Canvas canv;
+ MenuItem mnuopen, mnuexit;
+ Panel p, p2 ;
+ File flist[];
+ 
+ 
+
+ 
+
+ public FileManager() {
+  super("File Manager 1.0");
+  
+ MenuBar mb = new MenuBar();
+
+  Menu mnufile = new Menu("File");
+ 
+ 
+  MenuItem mnuopen = new MenuItem("open");
+
+  MenuItem mnuexit = new MenuItem("End");
+
+ 
+  mnufile.add(mnuopen);
+ 
+  mnufile.addSeparator();
+  mnufile.add(mnuexit);
+ 
+   mb.add(mnufile);
+
+
+  setLayout( new BorderLayout(10,10) );
+  
+   tf = new TextField("C:\\Windows");
+   apply = new Button("Apply");
+ 
+   list = new List();
+   list.add("Press the Apply Button!");
+   list.setBackground(Color.cyan);
+   ta =new TextArea();
+   canv = new Canvas();
+  p = new Panel( new GridLayout(2, 1) );   
+  p2 = new Panel( new BorderLayout() );   
+ 
+   p2.add("Center", tf);  p2.add("East", apply);
+  p.add(canv);
+  
+  add("North", p2);
+  add("West", list);
+  add("Center", p);
+  
+  
+  setMenuBar(mb);
+  
+  setVisible(true);
+  
+  addWindowListener(new WindowAdapter() {
+  public void windowClosing(WindowEvent e) {
+  System.exit(0);
+  }
+  });  
+  
+  apply.addActionListener(this);
+  list.addItemListener(this);
+  mnuexit.addActionListener(this);
+   mnuopen.addActionListener(this);
+  
+  
+ } 
+ public void itemStateChanged(ItemEvent e) { 
+  if(e.getSource() == list) { 
+   //String fname = list.getItem( Integer.parseInt("" + e.getItem()));
+   
+   try {
+   File file = flist[ list.getSelectedIndex() ];
+
+    if( file.getName().endsWith("jpg") || file.getName().endsWith("gif") ) {
+    Image im = Toolkit.getDefaultToolkit().getImage( file.getName() );
+    Graphics g = canv.getGraphics();
+    Rectangle r = canv.getBounds();
+    g.drawImage(im, 0, 0, r.width, r.height, this);
+     
+    }
+   else if( file.isFile() && !file.isHidden()) {
+
+    //ta.setText( file.getName() );
+    char cbuf[] = new char[ (int)file.length() ];
+    FileReader fr = new FileReader( file );
+    fr.read(cbuf);
+    fr.close();
+    ta.setText( String.valueOf( cbuf ) );  
+   
+   }
+   
+   } catch(FileNotFoundException e1) {  e1.printStackTrace();
+   } catch(IOException e2) {  e2.printStackTrace();  }
+   
+  }
+ }
+ public void actionPerformed(ActionEvent e) {
+  if(e.getSource() == apply) {
+  
+   File f = new File(tf.getText());
+   if(f.exists()) {
+    flist = f.listFiles();
+    list.removeAll();
+    for(int i=0; i < flist.length; i++) {
+     list.add( flist[i].getName() );
+    }
+   
+   }
+  }
+  if(e.getSource() == mnuexit) {
+   System.exit(0);
+   }
+  if(e.getActionCommand().equals("open")) {
+    FileDialog fd = new FileDialog(this, "파일열기", FileDialog.LOAD);
+     fd.setDirectory(".");
+     fd.setVisible(true);
+  }
+ }
+    
+ public static void main(String args[]) {
+  FileManager fm = new FileManager();
+  fm.setSize(400, 400);
+  fm.setVisible(true);
+ }
+}
